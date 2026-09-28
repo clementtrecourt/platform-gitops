@@ -44,3 +44,14 @@ data:
       rules:
         - allow: [Component, System, API, Resource, Location, Template]
       locations: []
+    argocd:
+      appLocatorMethods:
+        - type: 'config'
+          instances:
+            - name: platform-argocd
+              url: https://argocd-server.argocd.svc.cluster.local
+
+    scaffolder:
+      defaultAuthor:
+        name: Platform Bot
+        email: platform-bot@platform.local
