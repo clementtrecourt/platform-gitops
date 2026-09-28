@@ -29,7 +29,8 @@ data:
       github:
         - host: github.com
           token: ${GITHUB_TOKEN}
-
+      gitlab:
+        - host: gitlab.com
     scaffolder:
       defaultAuthor:
         name: Platform Bot
