@@ -43,6 +43,17 @@ data:
             - name: platform-argocd
               url: https://argocd-server.argocd.svc.cluster.local
 
+    kubernetes:
+      serviceLocatorMethod:
+        type: 'multiTenant'
+      clusterLocatorMethods:
+        - type: 'config'
+          clusters:
+            - url: https://kubernetes.default.svc
+              name: k3s-platform
+              authProvider: 'serviceAccount'
+              skipTLSVerify: true
+
     scaffolder:
       defaultAuthor:
         name: Platform Bot
