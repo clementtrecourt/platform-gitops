@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  namespace: ai
+  labels:
+    app: ollama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+        - name: ollama
+          image: ollama/ollama:0.5.4
+          ports:
+            - containerPort: 11434
+              name: http
+          env:
+            - name: OLLAMA_KEEP_ALIVE
+              value: "24h"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1536Mi
+            limits:
+              cpu: 2000m
+              memory: 3072Mi
+          volumeMounts:
+            - name: models-storage
+              mountPath: /root/.ollama
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/sh"
+                  - "-c"
+                  - "sleep 5 && ollama pull qwen2.5-coder:1.5b &"
+      volumes:
+        - name: models-storage
+          persistentVolumeClaim:
+            claimName: ollama-models
