@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-ai-service
+  namespace: ai
+  labels:
+    app: sample-ai-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sample-ai-service
+  template:
+    metadata:
+      labels:
+        app: sample-ai-service
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/clementtrecourt/sample-ai-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: OLLAMA_URL
+              value: "http://ollama.ai.svc.cluster.local:11434"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://opentelemetry-collector.monitoring.svc.cluster.local:4318"
+            - name: MODEL_NAME
+              value: "qwen2.5-coder:1.5b"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
