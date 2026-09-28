@@ -13,6 +13,15 @@ spec:
     targetRevision: 3.3.4
     helm:
       valuesObject:
+        cleanupJobs:
+          admissionReports:
+            image:
+              repository: registry.k8s.io/kubectl
+              tag: v1.31.0
+          clusterAdmissionReports:
+            image:
+              repository: registry.k8s.io/kubectl
+              tag: v1.31.0
         admissionController:
           replicas: 1
         backgroundController:
