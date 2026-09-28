@@ -1,0 +1,72 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: ai-microservice-template
+  title: AI Microservice (Golden Path)
+  description: Scaffold a production-ready Python FastAPI AI service with OpenTelemetry GenAI observability and DevSecOps CI.
+  tags:
+    - recommended
+    - python
+    - ai
+    - opentelemetry
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Service Details
+      required:
+        - name
+        - description
+        - owner
+      properties:
+        name:
+          title: Service Name
+          type: string
+          description: Unique name of the new service (lowercase, hyphen-separated).
+          ui:autofocus: true
+        description:
+          title: Description
+          type: string
+          description: What does this AI microservice do?
+        owner:
+          title: GitHub Owner
+          type: string
+          description: Your GitHub username (where the repo will be created).
+          default: clementtrecourt
+
+  steps:
+    - id: template
+      name: Generating Component Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+
+    - id: publish
+      name: Publishing to GitHub
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        description: ${{ parameters.description }}
+        repoUrl: github.com?owner=${{ parameters.owner }}&repo=${{ parameters.name }}
+        defaultBranch: main
+        repoVisibility: public
+
+    - id: register
+      name: Registering Component in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+
+  output:
+    links:
+      - title: Open GitHub Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: View in Catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

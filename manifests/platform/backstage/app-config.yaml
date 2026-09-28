@@ -66,4 +66,5 @@ data:
     catalog:
       rules:
         - allow: [Component, System, API, Resource, Location, Template]
-      locations: []
+        - type: url
+          target: https://github.com/clementtrecourt/platform-gitops/blob/main/templates/ai-service/template.yaml
