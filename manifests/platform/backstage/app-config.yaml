@@ -31,6 +31,7 @@ data:
           token: ${GITHUB_TOKEN}
       gitlab:
         - host: gitlab.com
+          token: "dummy-token"
     scaffolder:
       defaultAuthor:
         name: Platform Bot
