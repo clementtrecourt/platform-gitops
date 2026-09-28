@@ -35,15 +35,7 @@ data:
       gitlab:
         - host: gitlab.com
           token: "dummy-token"
-    scaffolder:
-      defaultAuthor:
-        name: Platform Bot
-        email: platform-bot@platform.local
 
-    catalog:
-      rules:
-        - allow: [Component, System, API, Resource, Location, Template]
-      locations: []
     argocd:
       appLocatorMethods:
         - type: 'config'
@@ -55,3 +47,8 @@ data:
       defaultAuthor:
         name: Platform Bot
         email: platform-bot@platform.local
+
+    catalog:
+      rules:
+        - allow: [Component, System, API, Resource, Location, Template]
+      locations: []
