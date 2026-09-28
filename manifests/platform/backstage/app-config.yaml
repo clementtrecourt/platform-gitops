@@ -17,6 +17,10 @@ data:
         origin: http://backstage.192.168.1.50.nip.io
         methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
         credentials: true
+      csp:
+        connect-src: ["'self'", 'http:', 'https:']
+        script-src: ["'self'", "'unsafe-eval'", "'unsafe-inline'"]
+        upgrade-insecure-requests: false
       auth:
         keys:
           - secret: "platform-backend-auth-token-key-2026-secure"
