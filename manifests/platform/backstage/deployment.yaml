@@ -17,6 +17,11 @@ spec:
         - name: backstage
           image: quay.io/janus-idp/backstage-showcase:latest
           imagePullPolicy: IfNotPresent
+          args:
+            - "--config"
+            - "app-config.yaml"
+            - "--config"
+            - "app-config.production.yaml"
           ports:
             - containerPort: 7007
               name: http
