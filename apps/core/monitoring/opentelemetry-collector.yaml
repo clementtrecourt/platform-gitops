@@ -13,6 +13,8 @@ spec:
     targetRevision: 0.111.0
     helm:
       valuesObject:
+        image:
+          repository: "otel/opentelemetry-collector-contrib"
         mode: deployment
         replicaCount: 1
         resources:
