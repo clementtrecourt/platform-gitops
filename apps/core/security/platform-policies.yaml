@@ -1,0 +1,54 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: enforce-platform-security-baseline
+  annotations:
+    policies.kyverno.io/title: Platform Security Baseline
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/severity: medium
+spec:
+  validationFailureAction: Enforce # Bloque immédiatement la création si non conforme
+  background: true
+  rules:
+    # Règle 1 : Obligation de définir CPU et Mémoire
+    - name: require-resources
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - default
+                - ai
+      validate:
+        message: "REJET PLATFORME : Les requests et limits CPU/Memory sont obligatoires."
+        pattern:
+          spec:
+            containers:
+              - resources:
+                  requests:
+                    cpu: "?*"
+                    memory: "?*"
+                  limits:
+                    cpu: "?*"
+                    memory: "?*"
+
+    # Règle 2 : Interdiction d'exécuter en tant que root
+    - name: require-non-root
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - default
+                - ai
+      validate:
+        message: "REJET PLATFORME : Le conteneur ne doit pas tourner en root (runAsNonRoot obligatoire)."
+        pattern:
+          spec:
+            =(securityContext):
+              =(runAsNonRoot): true
+            containers:
+              - =(securityContext):
+                  =(runAsNonRoot): true
