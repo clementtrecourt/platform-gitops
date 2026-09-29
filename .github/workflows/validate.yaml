@@ -1,0 +1,35 @@
+name: Validate GitOps manifests
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: yamllint
+        run: |
+          pip install yamllint
+          yamllint -d '{extends: relaxed, rules: {line-length: disable}}' apps manifests bootstrap
+      - name: kubeconform (schemas K8s + CRDs)
+        run: |
+          curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz
+          ./kubeconform -strict -summary -ignore-missing-schemas \
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            -kubernetes-version 1.31.0 manifests apps bootstrap
+      - name: No plaintext secrets in manifests
+        run: |
+          if grep -rEn --include='*.yaml' 'kind: Secret' manifests apps | grep -v sealed; then
+            echo "::warning::plain Secret manifests found (see docs/security-roadmap.md)"; fi
+  policy-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kyverno CLI dry-run of policies on workload manifests
+        run: |
+          curl -fsSL https://github.com/kyverno/kyverno/releases/download/v1.13.2/kyverno-cli_v1.13.2_linux_x86_64.tar.gz | tar xz
+          ./kyverno apply manifests/security/ --resource manifests/ai --resource manifests/core/sre --audit-warn

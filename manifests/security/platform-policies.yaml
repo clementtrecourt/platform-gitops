@@ -52,3 +52,61 @@ spec:
             containers:
               - =(securityContext):
                   =(runAsNonRoot): true
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: harden-workloads
+  annotations:
+    policies.kyverno.io/title: Workload hardening (progressive rollout)
+    policies.kyverno.io/category: Pod Security
+    policies.kyverno.io/description: >-
+      Privileged containers are blocked (Enforce). Mutable tags and missing
+      capability drops start in Audit so existing workloads are reported in
+      PolicyReports before enforcement (see docs/security-roadmap.md).
+spec:
+  background: true
+  rules:
+    - name: disallow-privileged
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaces: [default, ai, backstage]
+      validate:
+        failureAction: Enforce
+        message: "REJET PLATFORME : les conteneurs privilégiés et l'escalade de privilèges sont interdits."
+        pattern:
+          spec:
+            containers:
+              - =(securityContext):
+                  =(privileged): "false"
+                  =(allowPrivilegeEscalation): "false"
+    - name: disallow-latest-tag
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaces: [default, ai, backstage]
+      validate:
+        failureAction: Audit
+        message: "Le tag ':latest' est mutable : utilisez un tag versionné ou un digest (reproductibilité GitOps)."
+        pattern:
+          spec:
+            containers:
+              - image: "!*:latest"
+    - name: drop-all-capabilities
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaces: [default, ai, backstage]
+      validate:
+        failureAction: Audit
+        message: "Les conteneurs doivent déclarer securityContext.capabilities.drop: [ALL]."
+        pattern:
+          spec:
+            containers:
+              - securityContext:
+                  capabilities:
+                    drop: ["ALL"]
