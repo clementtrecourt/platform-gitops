@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/clementtrecourt/platform-gitops.git
     targetRevision: main
-    path: apps/ai/manifests/ollama
+    path: manifests/ai/ollama
   destination:
     server: https://kubernetes.default.svc
     namespace: ai

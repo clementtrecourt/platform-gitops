@@ -40,6 +40,12 @@ spec:
               memory: 512Mi
           persistence:
             size: 5Gi
+        read:
+          replicas: 0
+        write:
+          replicas: 0
+        backend:
+          replicas: 0
         chunksCache:
           enabled: false
         resultsCache:
