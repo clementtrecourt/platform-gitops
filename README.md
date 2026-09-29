@@ -26,6 +26,7 @@ Un agent SRE autonome surveille le cluster 24/7 et propose ses correctifs par Pu
 4. [Architecture Decision Records](#4-architecture-decision-records-adrs)
 5. [Stack (Bill of Materials)](#5-stack-bill-of-materials)
 6. [Reproduire en 3 commandes](#6-reproduire-en-3-commandes)
+7. [Limites connues & feuille de route](#7-limites-connues--feuille-de-route)
 
 ---
 
@@ -151,7 +152,7 @@ L'agent détecte l'incident, rédige un **rapport d'incident** et propose le cor
 **1. Cloner le repo**
 
 ```bash
-git clone https://github.com/<your-user>/platform-gitops.git
+git clone https://github.com/clementtrecourt/platform-gitops.git
 cd platform-gitops
 ```
 
@@ -161,18 +162,64 @@ cd platform-gitops
 tree apps/
 ```
 
-<!-- TODO : coller ici la sortie réelle de `tree apps/` -->
+```text
+apps
+├── ai
+│   ├── ollama.yaml
+│   └── sample-ai-service.yaml
+├── core
+│   ├── ingress
+│   │   └── ingress-nginx.yaml
+│   ├── monitoring
+│   │   ├── grafana-datasources.yaml
+│   │   ├── kube-prometheus-stack.yaml
+│   │   ├── loki.yaml
+│   │   ├── opentelemetry-collector.yaml
+│   │   └── tempo.yaml
+│   ├── security
+│   │   ├── kyverno-policies.yaml
+│   │   └── kyverno.yaml
+│   └── sre
+│       └── sre-agent.yaml
+└── platform
+    └── backstage.yaml
+manifests
+├── ai
+│   ├── ollama
+│   │   ├── deployment.yaml
+│   │   ├── ingress.yaml
+│   │   ├── pvc.yaml
+│   │   └── service.yaml
+│   └── sample-ai-service
+│       ├── deployment.yaml
+│       ├── ingress.yaml
+│       └── service.yaml
+├── core
+│   └── sre
+│       └── deployment.yaml
+├── platform
+│   └── backstage
+│       ├── app-config.yaml
+│       ├── deployment.yaml
+│       └── postgres.yaml
+└── security
+    └── platform-policies.yaml
+```
 
 **3. Tester une inférence en direct via l'Ingress**
 
 ```bash
-curl -s http://<ingress-host>/api/generate \
+curl -s http://ollama.192.168.1.50.nip.io/api/generate \
   -d '{
-    "model": "<qwen-model>",
+    "model": "qwen2.5-coder:1.5b",
     "prompt": "Explique le GitOps en une phrase.",
     "stream": false
   }'
 ```
+
+## 7. Limites connues & feuille de route
+
+Voir [docs/security-roadmap.md](docs/security-roadmap.md) : secrets de lab encore en clair, pas de NetworkPolicies ni de TLS, cluster mono-nœud, correction automatique limitée aux OOMKilled. Documenté volontairement plutôt que caché.
 
 ---
 
